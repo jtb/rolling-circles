@@ -5,6 +5,12 @@
   <title>Rolling Circles Demo</title>
   <meta name="author" content="Justin Brown">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/snap.svg/0.4.1/snap.svg-min.js"></script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+
   <style>
   * {
     box-sizing: border-box;
@@ -69,11 +75,11 @@
   <div class="row">
     <div class="column" style="background-color:#aaa;">
       <label for="primary">Stationary Circle Radius </label>
-      <input type="number" id="primary" value="80" min="1" max="200" step="1" onchange="updateCircles()">
+      <input type="number" id="primary" value="70" min="1" max="200" step="1" onchange="updateCircles()">
     </div>
     <div class="column" style="background-color:#aaa;">
       <label for="secondary">Rolling Circle Radius </label>
-      <input type="number" id="secondary" value="80" min="1" max="200" step="1" onchange="updateCircles()">
+      <input type="number" id="secondary" value="50" min="1" max="200" step="1" onchange="updateCircles()">
     </div>
   </div>
 
