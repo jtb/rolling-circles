@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Rolling Circles Demo</title>
+  <meta name="author" content="Justin Brown">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/snap.svg/0.4.1/snap.svg-min.js"></script>
+  <style>
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+  }
+
+  /* Create two equal columns that floats next to each other */
+  .column {
+    float: left;
+    width: 50%;
+    padding: 10px;
+  }
+
+  .columnFull {
+    float: left;
+    width: 100%;
+    padding: 10px;
+  }
+
+  /* Clear floats after the columns */
+  .row:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+
+  label {
+    font: normal 18px helvetica;
+  }
+
+  input[type="button"]{
+    font: normal 18px helvetica;
+  }
+
+  select {
+    font: normal 16px helvetica;
+  }
+
+  input {
+    font: normal 18px helvetica;
+  }
+
+</style>
+</head>
+<body>
+
+<form name="circle_roll" onsubmit="animateRoll(); return false;">
+
+  <div class="row">
+    <div class="columnFull" style="background-color:#abc;">
+      <label for="cycloid">Cycloid Type: </label>
+      <select id="cycloid" onchange="updateCircles()">
+        <option value="1">Epicycloid</option>
+        <option value="-1">Hypocycloid</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="column" style="background-color:#aaa;">
+      <label for="primary">Stationary Circle Radius </label>
+      <input type="number" id="primary" value="80" min="1" max="200" step="1" onchange="updateCircles()">
+    </div>
+    <div class="column" style="background-color:#aaa;">
+      <label for="secondary">Rolling Circle Radius </label>
+      <input type="number" id="secondary" value="80" min="1" max="200" step="1" onchange="updateCircles()">
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="columnFull" style="background-color:#abc;">
+      <input type="submit" value="Roll!" />
+      <input type="button" value="Reset" onclick="updateCircles()" />
+    </div>
+  </div>
+</form>
+
+<svg id="rolling-circle-animation"></svg>
+
+<script type="text/javascript">
+  var time = 5000;
+  var flip;
+  var circX = 300;
+  var circY = 300;
+  var circR;
+  var circ2R, circ2X, circ2Y;
+  var dot;
+  var rolling_path;
+
+  window.onload = function () {
+    drawCircles();
+  };
+
+  var paper=Snap("#rolling-circle-animation");
+  paper.attr({ viewBox: "0 0 600 600", width: "100%" });
+ 
+  function updateCircles() {
+    removeCircles();
+    drawCircles();
+  }
+
+  function removeCircles() {
+    rolling_path.remove();
+    circ.remove();
+    circ2.remove();
+    dot.remove();
+  }
+
+  function drawCircles() {
+    circR = parseInt(document.getElementById("primary").value);
+    circ2R = parseInt(document.getElementById("secondary").value);
+
+    var selector = document.getElementById("cycloid");
+    flip = parseInt(selector.options[selector.selectedIndex].value);
+
+ 
+   if (flip == -1) {
+      circX = Math.max(circR + 10, 2*circ2R - circR + 10);
+      circY = circX;
+    } else {
+      circX = 2*circ2R + circR + 10;
+      circY = circX;
+    }
+
+
+    circ = paper.circle(circX, circY, circR);
+    circ.attr({
+      fill: "#bada55",
+      stroke: "#000",
+      strokeWidth: 5
+    });
+
+    circ2X = circX + circR + flip*circ2R;
+    circ2Y = circY;
+    circ2 = paper.circle(circ2X, circ2Y, circ2R);
+    circ2.attr({
+      fill: "none",
+      stroke: "#000",
+      strokeWidth: 3
+    });
+
+    dot = paper.circle(circ2X + circ2R, circ2Y, 3);
+    dot.attr({
+      fill: "#FF0",
+      strokeWidth: 0
+    });
+
+    drawPath();
+  }
+
+  function drawPath() {
+    var pi = 3.14159265;
+    var revs = lcm(circR, circ2R) / circR;
+    var deg = revs * 360;
+    var path = "M " + (circ2X + circ2R) + " " + circ2Y + " ";
+    for (var rot = 0; rot <= deg; rot+=3) {
+      var distance = rot * pi * circR / 180;
+      var rot2 = flip*360* distance / (2*pi*circ2R);
+
+      var t = new Snap.Matrix();
+      t.rotate(rot, circX, circY);
+      t.rotate(rot2, circ2X, circ2Y)
+      var x = t.x(circ2X + circ2R, circ2Y);
+      var y = t.y(circ2X + circ2R, circ2Y);
+
+      path += "L " + x + " " + y + " ";
+    }
+    rolling_path = paper.path(path).attr({ fill: "none", stroke: "red", opacity: "1", width: "3"});
+  }
+
+  function animateRoll() {
+    updateCircles();
+
+    var revs = lcm(circR, circ2R) / circR;
+    var deg = revs * 360;
+
+    circ2.animate({ transform: 'r' + deg + ',' +  circX +',' +  circY }, (revs)*time);
+    dot.animate({ transform: 'r' + deg + ',' + circX + ',' + circY + ' r' + (flip*deg*circR/circ2R) +',' + circ2X + ',' + circ2Y }, (revs)*time);
+  }
+
+  function gcd(a, b) {
+    if (b == 0) {
+        return a; // so that the recursion does not go on forever
+    } else {
+        return gcd(b, a % b);
+    }
+  }
+
+  function lcm(a, b) {
+    return a * b / gcd(a, b);
+  }
+
+</script>
+
+</body>
+</html>
