@@ -67,7 +67,7 @@
       <label for="cycloid">Cycloid Type: </label>
       <select id="cycloid" onchange="updateCircles()">
         <option value="1">Epicycloid</option>
-        <option value="-1">Hypocycloid</option>
+        <option value="-1" id="hypocycloid">Hypocycloid</option>
       </select>
     </div>
   </div>
@@ -104,8 +104,12 @@
   var rolling_path;
 
   window.onload = function () {
-    var selector = document.getElementById("cycloid");
-    selector.options[selector.selectedIndex].value = getAllUrlParams().type || "1";
+    if (getAllUrlParams().type) {
+      if (getAllUrlParams().type == "-1") {
+        var selector = document.getElementById("cycloid");
+        $('#cycloid').val(selector.options[1].value).selectmenu('refresh');
+      }
+    }
 
     document.getElementById("primary").value = getAllUrlParams().r1 || 70;
     document.getElementById("secondary").value = getAllUrlParams().r2 || 50;
